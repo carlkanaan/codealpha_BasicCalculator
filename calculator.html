@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Basic Calculator</title>
+
+    <style>
+      body {
+        background: url("calc2.jpg") no-repeat center center fixed;
+        background-size: cover;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        text-align: center;
+      }
+
+      .quote {
+        font-size: 1.1rem;
+        font-style: italic;
+        color: white;
+        text-shadow: 1px 1px 3px black;
+        opacity: 0.9;
+        max-width: 80%;
+      }
+
+      .calculator {
+        width: 280px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      }
+
+      .display {
+        width: 92%;
+        height: 55px;
+        background: #000;
+        color: #0f0;
+        font-size: 1.8rem;
+        text-align: right;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        overflow: hidden;
+      }
+
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      button {
+        padding: 15px;
+        border: none;
+        border-radius: 6px;
+        background: #e0e0e0;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      button:hover {
+        background: #d5d5d5;
+      }
+
+      .operator {
+        background: #fff388;
+      }
+
+      .equal {
+        background: #6fdc85;
+        grid-column: span 2;
+      }
+
+      .clear {
+        background: #e06666;
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- TOP QUOTE -->
+    <div class="quote" id="quoteTop"></div>
+
+    <div class="calculator">
+      <div style="text-align: center; margin-bottom: 20px">
+        <h2 style="margin: 0; font-size: 1.8rem">Basic Calculator</h2>
+        <h3 style="opacity: 0.4; font-size: small">Carl Kanaan's Calculator</h3>
+      </div>
+
+      <div class="display" id="display">0</div>
+
+      <div class="buttons">
+        <button class="clear" onclick="clearDisplay()">C</button>
+        <button onclick="appendValue('(')">(</button>
+        <button onclick="appendValue(')')">)</button>
+        <button class="operator" onclick="appendValue('/')">÷</button>
+
+        <button onclick="appendValue('7')">7</button>
+        <button onclick="appendValue('8')">8</button>
+        <button onclick="appendValue('9')">9</button>
+        <button class="operator" onclick="appendValue('*')">×</button>
+
+        <button onclick="appendValue('4')">4</button>
+        <button onclick="appendValue('5')">5</button>
+        <button onclick="appendValue('6')">6</button>
+        <button class="operator" onclick="appendValue('-')">−</button>
+
+        <button onclick="appendValue('1')">1</button>
+        <button onclick="appendValue('2')">2</button>
+        <button onclick="appendValue('3')">3</button>
+        <button class="operator" onclick="appendValue('+')">+</button>
+
+        <button onclick="appendValue('0')">0</button>
+        <button onclick="appendValue('.')">.</button>
+        <button class="equal" onclick="calculateResult()">=</button>
+      </div>
+    </div>
+
+    <!-- BOTTOM QUOTE -->
+    <div class="quote" id="quoteBottom"></div>
+
+    <script>
+      const display = document.getElementById("display");
+      const ops = ["+", "-", "*", "/"];
+
+      // ✨ Quotes
+      const quotes = [
+        "“Pure mathematics is the poetry of logical ideas.” — Einstein",
+        "“Mathematics is the language in which God wrote the universe.” — Galileo",
+        "“The only way to learn mathematics is to do mathematics.” — Halmos",
+        "“Without mathematics, there’s nothing you can do.” — Shakuntala Devi",
+        "“Go deep enough into anything and you will find mathematics.” — Schlicter",
+        "“Math is about understanding, not memorizing.” — Thurston",
+      ];
+
+      const topQuote = document.getElementById("quoteTop");
+      const bottomQuote = document.getElementById("quoteBottom");
+
+      let quoteIndex = 0;
+
+      function updateQuotes() {
+        topQuote.textContent = quotes[quoteIndex];
+        bottomQuote.textContent = quotes[(quoteIndex + 1) % quotes.length];
+
+        quoteIndex = (quoteIndex + 2) % quotes.length;
+      }
+
+      setInterval(updateQuotes, 3000);
+      updateQuotes();
+
+      // ✨ Calculator Logic
+      function appendValue(v) {
+        let txt = display.innerText;
+
+        if (txt === "Error") txt = "0";
+
+        if (txt === "0") {
+          if (v === "*" || v === "/") return;
+          if (v === ".") {
+            display.innerText = "0.";
+            return;
+          }
+          display.innerText = v;
+          return;
+        }
+
+        const last = txt[txt.length - 1];
+
+        if (v === "." && last === ".") return;
+        if (v === "." && ops.includes(last)) return;
+
+        if (v === ".") {
+          const lastOpIndex = Math.max(
+            txt.lastIndexOf("+"),
+            txt.lastIndexOf("-"),
+            txt.lastIndexOf("*"),
+            txt.lastIndexOf("/")
+          );
+          const currentNumber = txt.slice(lastOpIndex + 1);
+          if (currentNumber.includes(".")) return;
+        }
+
+        if (ops.includes(v)) {
+          if (ops.includes(last)) {
+            display.innerText = txt.slice(0, -1) + v;
+          } else {
+            display.innerText = txt + v;
+          }
+          return;
+        }
+
+        display.innerText = txt + v;
+      }
+
+      function clearDisplay() {
+        display.innerText = "0";
+      }
+
+      function calculateResult() {
+        try {
+          let result = eval(display.innerText);
+
+          if (result === Infinity || result === -Infinity || isNaN(result)) {
+            display.innerText = "Error";
+            return;
+          }
+
+          result = Number(result.toFixed(7));
+          display.innerText = result;
+        } catch {
+          display.innerText = "Error";
+        }
+      }
+
+      document.addEventListener("keydown", function (e) {
+        const allowed = "0123456789+-*/().";
+        if (allowed.includes(e.key)) appendValue(e.key);
+
+        if (e.key === "Enter") {
+          e.preventDefault();
+          calculateResult();
+        }
+
+        if (e.key === "Backspace") {
+          let txt = display.innerText;
+
+          if (txt === "Error") {
+            display.innerText = "0";
+            return;
+          }
+
+          if (txt.length > 1) display.innerText = txt.slice(0, -1);
+          else display.innerText = "0";
+        }
+
+        if (e.key === "Escape") clearDisplay();
+      });
+    </script>
+  </body>
+</html>
